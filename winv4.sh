@@ -72,6 +72,7 @@ echo "🔁 Đang Biên Dịch..."
 --enable-slirp \
 --enable-lto \
 --enable-coroutine-pool \
+--enable-tcg-interpreter=no \
 --disable-kvm \
 --disable-mshv \
 --disable-xen \
