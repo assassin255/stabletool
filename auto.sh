@@ -86,6 +86,25 @@ RAM_VM=$((HOST_RAM/2))
 echo "CPU: $CPU_CORES"
 echo "VM RAM: $RAM_VM GB"
 
+
+CPU_NAME=$(grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | xargs)
+
+if echo "$CPU_NAME" | grep -qi "unknown"; then
+CPU_OPT="-cpu EPYC"
+else
+CPU_OPT="-cpu max"
+fi
+
+
+if [[ -e /dev/kvm && -r /dev/kvm && -w /dev/kvm ]]; then
+echo "⚡ KVM detected → hardware acceleration"
+ACCEL_OPT="-accel kvm"
+else
+echo "⚡ No KVM → using optimized TCG"
+ACCEL_OPT="-accel tcg,thread=multi,tb-size=3097152"
+fi
+
+
 if [[ ! -f "$IMG_FILE" ]]; then
 echo "⬇ Downloading Windows image..."
 aria2c -x16 -s16 --continue "$IMG_URL" -o "$IMG_FILE"
@@ -98,10 +117,10 @@ echo "🚀 Starting VM..."
 
 qemu-system-x86_64 \
 -machine q35,hpet=off \
--cpu max \
+$CPU_OPT \
 -smp "$CPU_CORES" \
 -m "${RAM_VM}G" \
--accel kvm -accel tcg,thread=multi,tb-size=3097152 \
+$ACCEL_OPT \
 -rtc base=localtime \
 -drive file=$IMG_FILE,if=virtio,cache=unsafe,aio=threads,format=raw \
 -netdev user,id=n0 \
