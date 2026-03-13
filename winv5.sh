@@ -270,15 +270,23 @@ BIOS_OPT="-bios /usr/share/qemu/OVMF.fd"
 else
 BIOS_OPT=""
 fi
-
+if [[ -e /dev/kvm && -r /dev/kvm && -w /dev/kvm ]]; then
+echo -e "${GREEN}⚡ KVM detected → Hardware acceleration${RESET}"
+CPU_OPT="-cpu host"
+ACCEL_OPT="-accel kvm"
+else
+echo -e "${YELLOW}⚡ No KVM → Using optimized LLVM-TCG${RESET}"
+CPU_OPT="-cpu $cpu_model"
+ACCEL_OPT="-accel tcg,thread=multi,tb-size=3097152"
+fi
 echo -e "${YELLOW}⌛ Starting VM...${RESET}"
 
 qemu-system-x86_64 \
 -machine q35,hpet=off \
--cpu "$cpu_model" \
+$CPU_OPT \
 -smp "$cpu_core" \
 -m "${ram_size}G" \
--accel kvm -accel tcg,thread=multi,tb-size=3097152 \
+$ACCEL_OPT \
 -rtc base=localtime \
 $BIOS_OPT \
 -drive file=win.img,if=virtio,cache=unsafe,aio=threads,format=raw \
