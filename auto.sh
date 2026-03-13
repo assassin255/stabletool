@@ -35,7 +35,7 @@ git clone --depth 1 --branch v10.2.1 https://gitlab.com/qemu-project/qemu.git qe
 mkdir /tmp/qemu-build
 cd /tmp/qemu-build
 
-EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -ffast-math -fuse-ld=lld -fomit-frame-pointer -fno-stack-protector -funroll-loops -finline-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=3097152"
+EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -ffast-math -fuse-ld=lld -fomit-frame-pointer -fno-stack-protector -funroll-loops -finline-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=4097152"
 
 LDFLAGS="-flto=full -fuse-ld=lld -Wl,--lto-O3 -Wl,--gc-sections -Wl,--icf=all -Wl,-O3"
 
@@ -62,6 +62,9 @@ ninja -j$(nproc) qemu-system-x86_64 qemu-img
 sudo mkdir -p /opt/qemu-optimized/bin
 sudo cp qemu-system-x86_64 /opt/qemu-optimized/bin/
 sudo cp qemu-img /opt/qemu-optimized/bin/
+
+sudo mkdir -p /opt/qemu-optimized/share/qemu
+sudo cp -r /tmp/qemu-src/pc-bios/* /opt/qemu-optimized/share/qemu/
 
 export PATH="/opt/qemu-optimized/bin:$PATH"
 
@@ -101,7 +104,7 @@ echo "⚡ KVM detected → hardware acceleration"
 ACCEL_OPT="-accel kvm"
 else
 echo "⚡ No KVM → using optimized TCG"
-ACCEL_OPT="-accel tcg,thread=multi,tb-size=3097152"
+ACCEL_OPT="-accel tcg,thread=multi,tb-size=4097152"
 fi
 
 
@@ -110,12 +113,15 @@ echo "⬇ Downloading Windows image..."
 aria2c -x16 -s16 --continue "$IMG_URL" -o "$IMG_FILE"
 fi
 
+
 echo "💾 Expanding disk +20GB..."
 qemu-img resize "$IMG_FILE" +20G > /dev/null
+
 
 echo "🚀 Starting VM..."
 
 qemu-system-x86_64 \
+-L /opt/qemu-optimized/share/qemu \
 -machine q35,hpet=off \
 $CPU_OPT \
 -smp "$CPU_CORES" \
