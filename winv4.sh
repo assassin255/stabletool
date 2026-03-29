@@ -56,9 +56,7 @@ silent pip install --upgrade pip tomli packaging
 
 rm -rf /tmp/qemu-src /tmp/qemu-build
 cd /tmp
-silent git clone --depth 1 --branch v10.2.1 https://gitlab.com/qemu-project/qemu.git qemu-src
-mkdir /tmp/qemu-build
-cd /tmp/qemu-build
+silent git clone --depth 1 --branch v11.0.0-rc1 https://gitlab.com/qemu-project/qemu.git qemu-src && mkdir /tmp/qemu-build && cd /tmp/qemu-build
 
 # V4: Removed -fno-math-errno to allow math error debugging
 EXTRA_CFLAGS="-Ofast -march=native -mtune=native -pipe -flto=full -ffast-math -fuse-ld=lld -fno-rtti -fno-exceptions -fmerge-all-constants -fno-semantic-interposition -fno-plt -fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-stack-protector -funsafe-math-optimizations -ffinite-math-only -fstrict-aliasing -funroll-loops -finline-functions -finline-hint-functions -DNDEBUG -DDEFAULT_TCG_TB_SIZE=3097152"
