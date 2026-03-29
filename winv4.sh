@@ -31,17 +31,10 @@ OS_VER="$(. /etc/os-release && echo "$VERSION_ID")"
 sudo apt update
 sudo apt install -y wget gnupg build-essential ninja-build git python3 python3-venv python3-pip libglib2.0-dev libpixman-1-dev zlib1g-dev libslirp-dev pkg-config meson aria2 ovmf
 
-if [[ "$OS_ID" == "ubuntu" ]]; then
-echo "🔥 Detect Ubuntu → Cài LLVM 21 từ apt.llvm.org"
-wget https://apt.llvm.org/llvm.sh
-chmod +x llvm.sh
-sudo ./llvm.sh 21
-LLVM_VER=21
-else
 if [[ "$OS_ID" == "debian" && "$OS_VER" == "13" ]]; then
 LLVM_VER=19
 else
-LLVM_VER=15
+LLVM_VER=16
 fi
 silent sudo apt install -y clang-$LLVM_VER lld-$LLVM_VER llvm-$LLVM_VER llvm-$LLVM_VER-dev llvm-$LLVM_VER-tools
 fi
